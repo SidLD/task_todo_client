@@ -234,8 +234,8 @@ export default function GuestDonorView() {
   }
 
   return (
-    <div className="relative grid min-h-screen md:grid-cols-2">
-      <div className="bg-[#591C1C] p-6 text-white">
+    <div className="relative grid md:grid-cols-2 h-full lg:min-h-[45rem] ">
+      <div className="bg-[#591C1C] sm:p-6 text-white ">
         <div className="max-w-md mx-auto space-y-6">
           <div className="flex items-center justify-center gap-2">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10">

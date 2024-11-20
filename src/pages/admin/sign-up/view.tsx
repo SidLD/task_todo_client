@@ -6,8 +6,8 @@ import logo from '../../../assets/logo.png'
 
 const AdminSignUpView: React.FC = () => {
   return (
-    <div className="relative grid rounded-lg lg:grid-cols-2">
-      <div className=" bg-[#3D0000] p-4 lg:p-6 flex flex-col">
+    <div className="relative grid h-full rounded-lg lg:grid-cols-2">
+      <div className=" bg-[#3D0000] p-4 lg:p-6 flex flex-col lg:min-h-[45rem]">
             <div className="relative z-20 flex items-center text-white/90">
                 <img width={60} src={logo} alt="logo" />
             </div>
@@ -56,7 +56,7 @@ const AdminSignUpView: React.FC = () => {
         </p>
         <Button 
           variant="outline"
-          className="border-[#3D0000] text-[#3D0000] hover:bg-[#3D0000] rounded-3xl hover:text-white"
+          className="border-[#3D0000] text-[#3D0000] hover:bg-[#3D0000] rounded-3xl  hover:text-white"
         >
           Sign In
         </Button>

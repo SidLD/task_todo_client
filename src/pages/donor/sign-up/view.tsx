@@ -6,16 +6,16 @@ import logo from '../../../assets/logo.png'
 
 const DonorSignUpView: React.FC = () => {
   return (
-    <div className="relative grid rounded-lg lg:grid-cols-2">
-      <div className=" bg-[#3D0000] p-4 lg:p-6 flex flex-col">
-            <div className="relative z-20 flex items-center text-white/90">
+    <div className="relative grid h-full rounded-lg lg:grid-cols-2">
+      <div className=" bg-[#3D0000] p-4 lg:p-6 flex flex-col lg:min-h-[45rem]">
+      <div className="relative z-20 flex items-center text-white/90">
                 <img width={60} src={logo} alt="logo" />
             </div>
         
         <div className='flex justify-center w-full'>
           <div className="flex items-center justify-center gap-2 px-4 py-2 mb-8 rounded-lg w-fit bg-white/90">
             <User className="w-5 h-5 text-[#3D0000]" />
-            <span className="font-bold text-[#3D0000]">ADMIN</span>
+            <span className="font-bold text-[#3D0000]">DONOR</span>
           </div>
         </div>
         <form className="flex-1 px-12 space-y-6">

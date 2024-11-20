@@ -3,11 +3,11 @@ import logo from '../../assets/logo.png'
 
 const SignUpSelectionView: React.FC = () => {
     return (
-        <div className="relative w-full h-full bg-[#3D0000] rounded-3xl p-12 shadow-2xl">
+        <div className="relative w-full h-full bg-[#3D0000] rounded-3xl md:p-12 shadow-2xl flex-col items-center ">
             <div className="relative z-20 flex items-center text-white/90">
                 <img width={60} src={logo} alt="logo" />
             </div>
-            <div className="items-center justify-center min-h-full p-6 ">
+            <div className="items-center justify-center min-h-[30rem] p-6 ">
                 <h1 className="mb-8 text-2xl font-bold text-center text-white">
                 REGISTER TODAY
                 </h1>
