@@ -166,14 +166,14 @@ export default function GuestDonorView() {
 
       case 2:
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="w-full space-y-6">
+            <div className="grid grid-cols-9 gap-2">
               {dates.map((date) => (
                 <Button
                   key={date}
                   variant={selectedDate === date ? "secondary" : "outline"}
-                  className={`rounded-full aspect-square ${
-                    selectedDate === date ? 'bg-white text-[#591C1C]' : 'bg-transparent text-white'
+                  className={`rounded-full p-2 aspect-square ${
+                    selectedDate === date ? 'bg-white text-[#f06464]' : 'bg-transparent text-white'
                   }`}
                   onClick={() => setSelectedDate(date)}
                 >
@@ -181,7 +181,7 @@ export default function GuestDonorView() {
                 </Button>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-4 gap-4 mx-10">
               {times.map((time) => (
                 <Button
                   key={time}
@@ -234,8 +234,8 @@ export default function GuestDonorView() {
   }
 
   return (
-    <div className="relative grid md:grid-cols-2 h-full lg:min-h-[45rem] ">
-      <div className="bg-[#591C1C] sm:p-6 text-white ">
+    <div className="w-full grid md:grid-cols-3 h-full lg:min-h-[25rem] ">
+      <div className="col-span-2 bg-[#591C1C] sm:p-6 text-white ">
         <div className="max-w-md mx-auto space-y-6">
           <div className="flex items-center justify-center gap-2">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10">
@@ -257,7 +257,7 @@ export default function GuestDonorView() {
           {renderStep()}
         </div>
       </div>
-      <div className="bg-[#F8EFEF] p-6 flex flex-col items-center justify-center gap-4">
+      <div className=" bg-[#F8EFEF] p-6 flex flex-col items-center justify-center gap-4">
         <h2 className="text-[#591C1C] text-2xl">Welcome Back!</h2>
         <Button
           variant="outline"

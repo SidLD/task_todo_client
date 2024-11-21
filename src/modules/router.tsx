@@ -15,18 +15,24 @@ import { SignUpSelection } from "@/pages/sign-up-selection"
 import { AdminSignUp } from "@/pages/admin/sign-up"
 import { DonorSignUp } from "@/pages/donor/sign-up"
 import { GuestDonor } from "@/pages/guest-donor"
+import { SignInSelection } from "@/pages/sign-in-selection"
 const routers = createBrowserRouter(
     createRoutesFromElements(
         <>
-         <Route path="/register" element={<RegisterLayout/>}>
+            <Route path="/register" element={<RegisterLayout/>}>
                 <Route index element={ <SignUpSelection />} />
+                <Route  path="admin" element={<AdminSignUp />} />
+                <Route  path="donor" element={<DonorSignUp />} />
+                <Route  path="guest-donor" element={<GuestDonor />} />
+            </Route> 
+            <Route path="/login" element={<RegisterLayout/>}>
+                <Route index element={ <SignInSelection />} />
                 <Route  path="admin" element={<AdminSignUp />} />
                 <Route  path="donor" element={<DonorSignUp />} />
                 <Route  path="guest-donor" element={<GuestDonor />} />
             </Route> 
             <Route element={<PublicLayout/>}>
                 <Route index path="/" element={<Home />} />
-                <Route  path="/login" element={<Login />} />
                 <Route  path="/about" element={<AboutUs />} />
                 <Route  path="*" element={<Navigate to="/" replace />} />
             </Route>   

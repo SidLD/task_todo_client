@@ -1,7 +1,7 @@
 import { User } from 'lucide-react'
 import logo from '../../assets/logo.png'
 
-const SignUpSelectionView: React.FC = () => {
+const SignInSelectionView: React.FC = () => {
     return (
         <div className="w-full h-full bg-[#3D0000] rounded-3xl p-2 shadow-2xl flex-col items-center ">
             <div className="z-20 flex items-center text-white/90">
@@ -9,7 +9,7 @@ const SignUpSelectionView: React.FC = () => {
             </div>
             <div className="items-center justify-center min-h-[25rem] p-6 ">
                 <h1 className="mb-8 text-2xl font-bold text-center text-white">
-                REGISTER TODAY
+                LOGIN AS 
                 </h1>
         
                 <div className="flex flex-col items-center justify-center grid-cols-1 gap-8 ">
@@ -29,18 +29,9 @@ const SignUpSelectionView: React.FC = () => {
                     <span className="text-[#3D0000] text-xl font-bold">DONOR</span>
                 </a>
                 </div>
-        
-                <div className="mt-8 text-center">
-                <a 
-                    href="/register/guest-donor" 
-                    className="text-sm transition-colors text-white/80 hover:text-white"
-                >
-                    Not a certified donor? Tap here.
-                </a>
-                </div>
             </div>
         </div>
   )
 }
 
-export default SignUpSelectionView
+export default SignInSelectionView

@@ -6,9 +6,9 @@ import logo from '../../../assets/logo.png'
 
 const AdminSignUpView: React.FC = () => {
   return (
-    <div className="relative grid h-full rounded-lg lg:grid-cols-2">
-      <div className=" bg-[#3D0000] p-4 lg:p-6 flex flex-col lg:min-h-[45rem]">
-            <div className="relative z-20 flex items-center text-white/90">
+    <div className="grid w-full h-full rounded-lg lg:grid-cols-2">
+      <div className=" bg-[#3D0000] p-4 lg:p-6 flex flex-col lg:min-h-[25rem]">
+            <div className="z-20 flex items-center text-white/90">
                 <img width={60} src={logo} alt="logo" />
             </div>
         
