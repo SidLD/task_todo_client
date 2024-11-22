@@ -3,8 +3,9 @@
 import { auth } from '@/lib/services';
 import { getRoleRoutePath } from '../lib/helper';
 import { Navigate } from "react-router-dom"
-import DashboardLayout from '@/layouts/DashboardLayout';
 import Guest from '@/layouts/Guest';
+import RegisterLayout from '@/layouts/RegisterLayout';
+import AdminLayout from '@/layouts/AdminLayout';
 
 export const PublicLayout = () => {
     
@@ -17,6 +18,7 @@ export const PublicLayout = () => {
 }
 
 export const PrivateLayout = () => {
+    return < AdminLayout/>
     if (!auth.isAuthenticated()) {
         return <Navigate to={"/login"} />;
     }
@@ -26,6 +28,6 @@ export const PrivateLayout = () => {
         return <Navigate to={"/login"} />;
         
     }else{
-        return <DashboardLayout />
+        return <RegisterLayout />
     }   
 }

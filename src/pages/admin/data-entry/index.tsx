@@ -7,9 +7,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { DatePicker } from '@/pages/donor/data-entry/_components/date-picker'
+
 import { getRecords, updateRecordStatus } from '@/lib/api'
 import { UserType } from '@/lib/interface'
+import { DatePicker } from './_components/date-picker'
 
 type FoodWasteRecord = {
   _id: string

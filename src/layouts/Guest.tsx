@@ -1,8 +1,9 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
 import logo from '../assets/logo.png'
 import background from '../assets/full-background.png'
 
 export default function GuestLayout() {
+  const navigate = useNavigate()
   return (
     <main className="min-h-screen bg-gradient-to-t from-black to-transparent bg-[#4b0c0c] flex flex-col p-6 relative">
       <img 
@@ -12,7 +13,7 @@ export default function GuestLayout() {
       />
       <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/50 to-transparent" aria-hidden="true" />
 
-      <div className="relative z-20 flex items-center text-white/90">
+      <div className="relative z-20 flex items-center text-white/90" onClick={() => { navigate('/about-us')}}>
         <img width={60}  src={logo} alt="logo" />
         <span className="text-2xl font-bold">
           {['B', 'L', 'O', 'O', 'D'].map(data => 

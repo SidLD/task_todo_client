@@ -3,8 +3,21 @@ import { User } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import logo from '../../../assets/logo.png'
+import { useToast } from '@/hooks/use-toast'
+import { useNavigate } from 'react-router-dom'
 
 const AdminSignInView: React.FC = () => {
+  const { toast } = useToast()
+  const navigate = useNavigate()
+
+  const onSubmit =  async () => {
+    toast({
+      title: "Login Success",
+      description: "Welcome",
+      variant: "default",
+    })
+    navigate('/admin')
+  }
   return (
     <div className="grid w-full h-full rounded-lg lg:grid-cols-2">
       <div className="bg-[#3D0000] p-8 lg:p-12 flex flex-col min-h-[600px]">
@@ -37,6 +50,7 @@ const AdminSignInView: React.FC = () => {
             />
             <Button 
               className="w-full h-14 text-xl font-bold text-[#3D0000] bg-white hover:bg-white/90 rounded-full mt-8"
+              onClick={onSubmit}
             >
               Sign In
             </Button>

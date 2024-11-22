@@ -3,11 +3,23 @@ import { User } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import logo from '../../../assets/logo.png'
-
+import { useToast } from '@/hooks/use-toast'
+import { useNavigate } from 'react-router-dom'
 const DonorSignInView: React.FC = () => {
+  const { toast } = useToast()
+  const navigate = useNavigate()
+
+  const onSubmit =  async () => {
+    toast({
+      title: "Login Success",
+      description: "Welcome",
+      variant: "default",
+    })
+    navigate('/donor')
+  }
   return (
-    <div className="grid w-full h-full rounded-lg lg:grid-cols-2">
-      <div className="bg-[#3D0000] p-8 lg:p-12 flex flex-col min-h-[600px]">
+    <div className="relative grid w-full h-full rounded-lg lg:grid-cols-2">
+      <div className="bg-[#3D0000] p-8 lg:p-12 flex flex-col min-h-full">
         <div className="flex items-center text-white/90">
           <img width={60} src={logo} alt="logo" className="brightness-200" />
         </div>
@@ -37,6 +49,7 @@ const DonorSignInView: React.FC = () => {
             />
             <Button 
               className="w-full h-14 text-xl font-bold text-[#3D0000] bg-white hover:bg-white/90 rounded-full mt-8"
+              onClick={onSubmit}
             >
               Sign In
             </Button>
