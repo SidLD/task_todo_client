@@ -14,7 +14,7 @@ const SignInSelectionView: React.FC = () => {
         
                 <div className="flex flex-col items-center justify-center grid-cols-1 gap-8 ">
                 <a 
-                    href="/register/admin"
+                    href="/login/admin"
                     className="flex items-center w-[50%] gap-3 px-6 py-4 transition-colors bg-white rounded-lg hover:bg-white/90 group"
                 >
                     <User className="w-6 h-6 text-[#3D0000]" />
@@ -22,7 +22,7 @@ const SignInSelectionView: React.FC = () => {
                 </a>
         
                 <a 
-                    href="/register/donor"
+                    href="/login/donor"
                     className="flex items-center w-[50%] gap-3 px-6 py-4 transition-colors bg-white rounded-lg hover:bg-white/90 group"
                 >
                     <User className="w-6 h-6 text-[#3D0000]" />

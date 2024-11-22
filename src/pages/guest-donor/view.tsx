@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Home } from 'lucide-react'
-
+import logo from '../../assets/logo.png'
 interface FormData {
   name: string
   address: string
@@ -173,7 +173,7 @@ export default function GuestDonorView() {
                   key={date}
                   variant={selectedDate === date ? "secondary" : "outline"}
                   className={`rounded-full p-2 aspect-square ${
-                    selectedDate === date ? 'bg-white text-[#f06464]' : 'bg-transparent text-white'
+                    selectedDate === date ? 'bg-white' : 'bg-[#eddede] text-[#f06464]'
                   }`}
                   onClick={() => setSelectedDate(date)}
                 >
@@ -187,7 +187,7 @@ export default function GuestDonorView() {
                   key={time}
                   variant={selectedTime === time ? "secondary" : "outline"}
                   className={`rounded-full ${
-                    selectedTime === time ? 'bg-white text-[#591C1C]' : 'bg-transparent text-white'
+                    selectedTime === time ? 'bg-white text-[#591C1C]' : 'bg-[#eddede] text-[#f06464]'
                   }`}
                   onClick={() => setSelectedTime(time)}
                 >
@@ -237,20 +237,12 @@ export default function GuestDonorView() {
     <div className="w-full grid md:grid-cols-3 h-full lg:min-h-[25rem] ">
       <div className="col-span-2 bg-[#591C1C] sm:p-6 text-white ">
         <div className="max-w-md mx-auto space-y-6">
+
           <div className="flex items-center justify-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10">
-              <svg
-                className="w-4 h-4"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-              </svg>
-            </div>
+            <img className="relative float-left" width={60} src={logo} alt="logo" />
             <h2 className="text-lg font-semibold uppercase">Donor Applicant</h2>
           </div>
-          <p className="text-sm text-center text-white/80">
+          <p className="text-lg font-bold text-center text-white/80">
             {step === 1 ? "Let's schedule your screening!" : 
              step === 2 ? "Choose Date & Time" : ""}
           </p>

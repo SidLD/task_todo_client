@@ -17,7 +17,7 @@ const DonorSignUpView: React.FC = () => {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<IFormInput>()
   const { toast } = useToast()
 
-  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+  const onSubmit: SubmitHandler<IFormInput> = async (_data) => {
     try {
       throw "err";
       // const response = await axios.post('https://your-api-endpoint.com/register', data)

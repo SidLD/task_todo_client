@@ -1,7 +1,6 @@
 import {createBrowserRouter, createRoutesFromElements, Navigate, Route} from "react-router-dom"
 import { Home } from "@/pages/home"
 import { PrivateLayout, PublicLayout } from "./module"
-import { Login } from "@/pages/login"
 import AboutUs from "@/pages/about-us"
 import { AdminDashboard } from "@/pages/admin/dashboard"
 import { ContributorDashboard } from "@/pages/donor/dashboard"
@@ -16,6 +15,8 @@ import { AdminSignUp } from "@/pages/admin/sign-up"
 import { DonorSignUp } from "@/pages/donor/sign-up"
 import { GuestDonor } from "@/pages/guest-donor"
 import { SignInSelection } from "@/pages/sign-in-selection"
+import { AdminSignIn } from "@/pages/admin/sign-in"
+import { DonorSignIn } from "@/pages/donor/sign-in"
 const routers = createBrowserRouter(
     createRoutesFromElements(
         <>
@@ -27,9 +28,8 @@ const routers = createBrowserRouter(
             </Route> 
             <Route path="/login" element={<RegisterLayout/>}>
                 <Route index element={ <SignInSelection />} />
-                <Route  path="admin" element={<AdminSignUp />} />
-                <Route  path="donor" element={<DonorSignUp />} />
-                <Route  path="guest-donor" element={<GuestDonor />} />
+                <Route  path="admin" element={<AdminSignIn />} />
+                <Route  path="donor" element={<DonorSignIn />} />
             </Route> 
             <Route element={<PublicLayout/>}>
                 <Route index path="/" element={<Home />} />
