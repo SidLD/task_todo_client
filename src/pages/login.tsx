@@ -1,22 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useNavigate } from 'react-router-dom'
+import { LoginFormData } from '@/lib/interface'
 import { SignUpModal } from './signup'
+import { login } from '@/lib/api'
+import { auth } from '@/lib/services'
 
-
-export interface LoginFormData {
-  username: string;
-  password: string;
-}
-
-export interface SignUpFormData {
-  username: string;
-  password: string;
-  confirmPassword: string;
-}
 
 export default function LoginPage() {
   const router = useNavigate()
@@ -25,12 +17,28 @@ export default function LoginPage() {
     password: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if(auth.getToken()){
+      router('/user')
+    }
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log('Login data:', loginData)
-    // Redirect to dashboard after successful login
-    router('/user')
+    try {
+      await login(loginData)
+      .then((data:any) => {
+        if(data.data){
+          auth.storeToken(data.data.token)
+          router('/user')
+        }
+      })
+      .catch((err:any) => {
+        console.log(err)
+      })
+    } catch (error) {
+      
+    }
   }
 
   return (
@@ -40,7 +48,7 @@ export default function LoginPage() {
       </header>
       
       <main className="flex flex-col items-center justify-center flex-grow">
-        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-4">
+        <form className="w-full max-w-md space-y-4">
           <Input
             type="text"
             placeholder="Username"
@@ -60,7 +68,7 @@ export default function LoginPage() {
           />
           
           <div className="flex justify-center space-x-4">
-            <Button type="submit" className="w-36 h-12 bg-[#8f6b07] hover:bg-[#dab641] text-white rounded-lg">
+            <Button onClick={handleSubmit} type="submit" className="w-36 h-12 bg-[#8f6b07] hover:bg-[#dab641] text-white rounded-lg">
               Login
             </Button>
             <SignUpModal />

@@ -1,8 +1,8 @@
 import axios from "axios";;
 import { dataHeader } from "./helper";
-import { RegisterUserType, LoginType, FoodWasteType } from "./interface";
+import { LoginFormData, SignUpFormData } from "./interface";
 console.log(import.meta.env.VITE_API_URL)
-export const login = (data:LoginType) => {
+export const login = (data:LoginFormData) => {
     return new Promise((resolve, reject) => {
       axios
         .post(`${import.meta.env.VITE_API_URL}/login`, data)
@@ -15,7 +15,7 @@ export const login = (data:LoginType) => {
     });
 };
 
-export const register = (data:RegisterUserType) => {
+export const register = (data:SignUpFormData) => {
   return new Promise((resolve, reject) => {
     axios
       .post(`${import.meta.env.VITE_API_URL}/register`, data, dataHeader())
@@ -73,119 +73,65 @@ export const deleteUser = (data:any) => {
 };
 
 
-//Food Waste
-export const createRecord = (data:FoodWasteType) => {
+// Set Budget API
+export const setBudget = (userId: string, budget: number) => {
   return new Promise((resolve, reject) => {
     axios
-      .post(`${import.meta.env.VITE_API_URL}/food-waste`, data, dataHeader())
-      .then((res:any) => {
+      .put(
+        `${import.meta.env.VITE_API_URL}/budget/${userId}`,
+        { value: budget },
+        dataHeader()
+      )
+      .then((res: any) => {
         resolve(res);
       })
-      .catch((err:any) => {
+      .catch((err: any) => {
         reject(err);
       });
   });
 };
 
-  
-export const getRecords = (data:any) => {
+// Get Budget API (Optional: if you need to fetch the user's budget directly)
+export const getBudget = (userId: string) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${import.meta.env.VITE_API_URL}/food-waste`, {
-          data, ...dataHeader()
-      })
-      .then((res:any) => {
+      .get(`${import.meta.env.VITE_API_URL}/budget/${userId}`, dataHeader())
+      .then((res: any) => {
         resolve(res);
       })
-      .catch((err:any) => {
+      .catch((err: any) => {
         reject(err);
       });
   });
 };
 
-export const updateRecordStatus = (id: string, data:any) => {
+// Get Expenses API
+export const getExpenses = (userId: string) => {
   return new Promise((resolve, reject) => {
     axios
-      .put(`${import.meta.env.VITE_API_URL}/food-waste/${id}/status`, data, dataHeader())
-      .then((res:any) => {
+      .get(`${import.meta.env.VITE_API_URL}/expense/${userId}`, dataHeader())
+      .then((res: any) => {
         resolve(res);
       })
-      .catch((err:any) => {
+      .catch((err: any) => {
         reject(err);
       });
   });
 };
 
-export const deleteRecord = (data:{recordId: string}) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .delete(`${import.meta.env.VITE_API_URL}/food-waste`, {
-        data, ...dataHeader()
-      })
-      .then((res:any) => {
-        resolve(res);
-      })
-      .catch((err:any) => {
-        reject(err);
-      });
-  });
-};
 
-//Stat
-export const getStat = (data:any) => {
+export const addExpense = (userId: string, amount: number) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${import.meta.env.VITE_API_URL}/stat`, {
-          data, ...dataHeader()
-      })
-      .then((res:any) => {
+      .post(
+        `${import.meta.env.VITE_API_URL}/expense/${userId}`,
+        { amount },
+        dataHeader()
+      )
+      .then((res: any) => {
         resolve(res);
       })
-      .catch((err:any) => {
-        reject(err);
-      });
-  });
-};
-
-export const getContributorStat = (data:any) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/contributor/stat`, {
-          data, ...dataHeader()
-      })
-      .then((res:any) => {
-        resolve(res);
-      })
-      .catch((err:any) => {
-        reject(err);
-      });
-  });
-};
-
-//Setting
-export const getUserSetting = (data:any) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(`${import.meta.env.VITE_API_URL}/user/setting`, {
-          data, ...dataHeader()
-      })
-      .then((res:any) => {
-        resolve(res);
-      })
-      .catch((err:any) => {
-        reject(err);
-      });
-  });
-};
-
-export const updateUserSetting = (data:any) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .put(`${import.meta.env.VITE_API_URL}/user/setting`, data, dataHeader())
-      .then((res:any) => {
-        resolve(res);
-      })
-      .catch((err:any) => {
+      .catch((err: any) => {
         reject(err);
       });
   });

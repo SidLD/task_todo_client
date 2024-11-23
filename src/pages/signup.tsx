@@ -4,42 +4,59 @@ import { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SignUpFormData } from '@/lib/interface'
+import { register } from '@/lib/api'
+import { Toaster } from '@/components/ui/toaster'
+import { useToast } from '@/hooks/use-toast'
 
-
-export interface LoginFormData {
-    username: string;
-    password: string;
-  }
-  
-  export interface SignUpFormData {
-    username: string;
-    password: string;
-    confirmPassword: string;
-  }
-  
 
 export function SignUpModal() {
+  const {toast} = useToast()
   const [formData, setFormData] = useState<SignUpFormData>({
     username: '',
     password: '',
     confirmPassword: ''
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitRegistration = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle sign up logic here
-    console.log('Sign up data:', formData)
+    try {
+      if(! (formData.password == formData.confirmPassword)){
+        toast({
+          variant: 'destructive',
+          title: "Password does not match ",
+          description: ''
+        })
+      }else{    
+          await register(formData)
+            .then((data:any) => {
+              toast({
+                title: "Sign Up Success ",
+              })
+            })
+            .catch((err:any) => {
+              toast({
+                variant: 'destructive',
+                title: "Sign Up Failed ",
+                description: 'Username already used'
+              })
+            })
+      }
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
     <Dialog>
+      <Toaster />
       <DialogTrigger asChild>
         <Button className="w-36 h-12 bg-[#8f6b07] hover:bg-[#dab641] text-white rounded-lg">
           Sign Up
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[350px] bg-[#f0f0f0] rounded-[15px]">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmitRegistration} className="space-y-4">
           <h2 className="text-2xl font-bold text-center text-black">Sign Up</h2>
           <Input
             placeholder="Create Username"

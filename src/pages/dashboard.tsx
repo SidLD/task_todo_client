@@ -1,18 +1,100 @@
-'use client'
-
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useNavigate } from 'react-router-dom'
+import { auth } from '@/lib/services'
+import { getBudget, getExpenses, setBudget, addExpense } from '@/lib/api'
 
 export default function Dashboard() {
   const router = useNavigate()
   const [activeTab, setActiveTab] = useState('about')
+  const user = auth.getUserInfo();
+  const [budget, setBudgetState] = useState<number | null>(null)
+  const [expenses, setExpensesState] = useState<any[]>([]) // Adjust according to your expense structure
+  const [newBudget, setNewBudget] = useState<number>(0)
+  const [expenseAmount, setExpenseAmount] = useState(0)
 
+  useEffect(() => {
+    if (!auth.getToken()) {
+      router('/')
+    } else {
+      // Fetch the initial data when the component mounts
+      fetchBudget()
+      fetchExpenses()
+    }
+  }, [])
+
+  // Function to handle logout
   const handleLogout = () => {
-    // Add logout logic here
-    router('/')
+    try {
+      auth.clear()
+      router('/')
+    } catch (error) {
+      console.error('Logout failed', error)
+    }
+  }
+
+  // Fetch the budget from the API
+  const fetchBudget = async () => {
+    try {
+      if (user.id) {
+        const data = await getBudget(user.id) as unknown as any
+        if (data.data) {
+          setBudgetState(data.data.balance) // Set the current budget
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching budget', error)
+    }
+  }
+
+  // Fetch the list of expenses from the API
+  const fetchExpenses = async () => {
+    try {
+      if (user.id) {
+        const data = await getExpenses(user.id)  as unknown as any
+        if (data.data) {
+          setExpensesState(data.data) // Set the expenses state
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching expenses', error)
+    }
+  }
+
+  // Handle setting the budget
+  const handleSetBudget = async () => {
+    try {
+      if (user.id && newBudget) {
+        const response = await setBudget(user.id, newBudget)  as unknown as any
+        if (response.data) {
+          await fetchBudget()
+        } else {
+          console.error('Failed to set budget')
+        }
+      }
+    } catch (error) {
+      console.error('Error setting budget:', error)
+    }
+  }
+
+  // Handle adding an expense
+  const handleAddExpense = async () => {
+    try {
+      if (user.id  && expenseAmount > 0) {
+        const response = await addExpense(user.id, expenseAmount)  as unknown as any
+        if (response.data) {
+         await fetchExpenses() // Refetch the expenses after adding a new one=
+          setExpenseAmount(0)
+          console.log('Expense added successfully:', response.data)
+        } else {
+          console.error('Failed to add expense')
+        }
+      }
+    } catch (error) {
+      console.error('Error adding expense:', error)
+    }
   }
 
   return (
@@ -81,21 +163,46 @@ export default function Dashboard() {
               <TabsContent value="add-expenses" className="h-full m-0">
                 <div className="flex flex-col items-center justify-center h-full">
                   <h2 className="mb-4 text-4xl font-bold">Add Expenses</h2>
-                  {/* Add expense form will go here */}
+                  <div className="space-y-4">
+                    <input
+                      type="number"
+                      value={expenseAmount}
+                      onChange={(e) => setExpenseAmount(Number(e.target.value))}
+                      className="p-2 border rounded"
+                      placeholder="Amount"
+                    />
+                    <Button onClick={handleAddExpense}>Add Expense</Button>
+                  </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="list-expenses" className="h-full m-0">
                 <div className="flex flex-col items-center justify-center h-full">
                   <h2 className="mb-4 text-4xl font-bold">List of Expenses</h2>
-                  {/* Expenses list will go here */}
+                  <ul className="space-y-4">
+                    {expenses.map((expense, index) => (
+                      <li key={index} className="p-4 bg-white rounded-lg shadow-md">
+                        <p>{expense.value}</p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </TabsContent>
 
               <TabsContent value="budget" className="h-full m-0">
                 <div className="flex flex-col items-center justify-center h-full">
                   <h2 className="mb-4 text-4xl font-bold">Budget</h2>
-                  {/* Budget information will go here */}
+                  <div className="space-y-4">
+                    <p>Current Budget: {budget !== null ? `$${budget}` : 'Not set'}</p>
+                    <input
+                      type="number"
+                      value={newBudget}
+                      onChange={(e) => setNewBudget(Number(e.target.value))}
+                      className="p-2 border rounded"
+                      placeholder="Set new budget"
+                    />
+                    <Button onClick={handleSetBudget}>Set Budget</Button>
+                  </div>
                 </div>
               </TabsContent>
 
@@ -112,4 +219,3 @@ export default function Dashboard() {
     </div>
   )
 }
-
