@@ -120,12 +120,29 @@ export const getExpenses = (userId: string) => {
 };
 
 
-export const addExpense = (userId: string, amount: number) => {
+export const addExpense = (userId: string, amount: number, description: string, date: Date) => {
   return new Promise((resolve, reject) => {
     axios
       .post(
         `${import.meta.env.VITE_API_URL}/expense/${userId}`,
-        { amount },
+        { amount , description, date},
+        dataHeader()
+      )
+      .then((res: any) => {
+        resolve(res);
+      })
+      .catch((err: any) => {
+        reject(err);
+      });
+  });
+};
+
+export const resetExpenses = (userId: string) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(
+        `${import.meta.env.VITE_API_URL}/expenses/reset/${userId}`,
+        {},
         dataHeader()
       )
       .then((res: any) => {
