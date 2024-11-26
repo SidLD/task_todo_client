@@ -137,6 +137,41 @@ export const addExpense = (userId: string, amount: number, description: string, 
   });
 };
 
+export const updateExpense = (_userId: string,  id: string, amount: number, description: string, date: Date) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .put(
+        `${import.meta.env.VITE_API_URL}/expense/${id}`,
+        { amount , description, date},
+        dataHeader()
+      )
+      .then((res: any) => {
+        resolve(res);
+      })
+      .catch((err: any) => {
+        reject(err);
+      });
+  });
+};
+
+
+export const deleteExpense = (_userId: string, id: string) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .delete(
+        `${import.meta.env.VITE_API_URL}/expense/${id}`,
+        {...dataHeader()},
+      )
+      .then((res: any) => {
+        resolve(res);
+      })
+      .catch((err: any) => {
+        reject(err);
+      });
+  });
+};
+
+
 export const resetExpenses = (userId: string) => {
   return new Promise((resolve, reject) => {
     axios

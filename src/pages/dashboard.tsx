@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { auth } from '@/lib/services'
-import { getBudget, getExpenses, setBudget, addExpense, resetExpenses } from '@/lib/api'
+import { getBudget, getExpenses, setBudget, addExpense, resetExpenses, updateExpense, deleteExpense } from '@/lib/api'
+import { toast } from 'react-hot-toast'
 
 export default function Dashboard() {
   const router = useNavigate()
@@ -15,6 +16,10 @@ export default function Dashboard() {
   const [expenseDate, setExpenseDate] = useState('')
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [editingExpense, setEditingExpense] = useState<string | null>(null)
+  const [updatedAmount, setUpdatedAmount] = useState(0)
+  const [updatedDescription, setUpdatedDescription] = useState('')
+  const [updatedDate, setUpdatedDate] = useState('')
 
   useEffect(() => {
     if (!auth.getToken()) {
@@ -29,8 +34,10 @@ export default function Dashboard() {
     try {
       auth.clear()
       router('/')
+      toast.success('Logged out successfully')
     } catch (error) {
       console.error('Logout failed', error)
+      toast.error('Failed to logout')
     }
   }
 
@@ -67,10 +74,12 @@ export default function Dashboard() {
         if (response.data) {
           await fetchBudget()
           setNewBudget(0)
+          toast.success('Budget set successfully')
         }
       }
     } catch (error) {
       console.error('Error setting budget:', error)
+      toast.error('Failed to set budget')
     }
   }
 
@@ -83,10 +92,12 @@ export default function Dashboard() {
           setExpenseAmount(0)
           setExpenseDescription('')
           setExpenseDate('')
+          toast.success('Expense added successfully')
         }
       }
     } catch (error) {
       console.error('Error adding expense:', error)
+      toast.error('Failed to add expense')
     }
   }
 
@@ -97,10 +108,47 @@ export default function Dashboard() {
         if (response.data) {
           await fetchBudget()
           setExpensesState([])
+          setShowResetConfirm(false)
+          toast.success('Budget and expenses reset successfully')
         }
       }
     } catch (error) {
       console.error('Error resetting budget:', error)
+      toast.error('Failed to reset budget and expenses')
+    }
+  }
+
+  const handleUpdateExpense = async (id: string) => {
+    try {
+      if (user.id && updatedAmount > 0) {
+        const response = await updateExpense(user.id, id, updatedAmount, updatedDescription, new Date(updatedDate)) as unknown as any
+        if (response.data) {
+          await fetchExpenses()
+          setEditingExpense(null)
+          setUpdatedAmount(0)
+          setUpdatedDescription('')
+          setUpdatedDate('')
+          toast.success('Expense updated successfully')
+        }
+      }
+    } catch (error) {
+      console.error('Error updating expense:', error)
+      toast.error('Failed to update expense')
+    }
+  }
+
+  const handleDeleteExpense = async (id: string) => {
+    try {
+      if (user.id) {
+        const response = await deleteExpense(user.id, id) as unknown as any
+        if (response.data) {
+          await fetchExpenses()
+          toast.success('Expense deleted successfully')
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting expense:', error)
+      toast.error('Failed to delete expense')
     }
   }
 
@@ -213,16 +261,72 @@ export default function Dashboard() {
             {activeTab === 'list-expenses' && (
               <div className="flex flex-col items-center justify-center h-full">
                 <div className="w-full p-4 bg-white rounded-2xl">
-                  <div className="grid grid-cols-3 gap-4 mb-4 font-bold">
+                  <div className="grid grid-cols-5 gap-4 mb-4 font-bold">
                     <div>Description</div>
                     <div>Amount</div>
                     <div>Date</div>
+                    <div>Update</div>
+                    <div>Delete</div>
                   </div>
-                  {expenses.map((expense, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-4 mb-2">
-                      <div>{expense.description}</div>
-                      <div>${expense.value}</div>
-                      <div>{new Date(expense.date).toLocaleDateString()}</div>
+                  {expenses.map((expense) => (
+                    <div key={expense._id} className="grid grid-cols-5 gap-4 mb-2">
+                      {editingExpense === expense._id ? (
+                        <>
+                          <input
+                            type="text"
+                            value={updatedDescription}
+                            onChange={(e) => setUpdatedDescription(e.target.value)}
+                            className="p-1 border rounded"
+                          />
+                          <input
+                            type="number"
+                            value={updatedAmount}
+                            onChange={(e) => setUpdatedAmount(Number(e.target.value))}
+                            className="p-1 border rounded"
+                          />
+                          <input
+                            type="date"
+                            value={updatedDate}
+                            onChange={(e) => setUpdatedDate(e.target.value)}
+                            className="p-1 border rounded"
+                          />
+                          <button
+                            onClick={() => handleUpdateExpense(expense._id)}
+                            className="px-2 py-1 text-white bg-green-500 rounded hover:bg-green-600"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingExpense(null)}
+                            className="px-2 py-1 text-white bg-gray-500 rounded hover:bg-gray-600"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <div>{expense.description}</div>
+                          <div>${expense.value}</div>
+                          <div>{new Date(expense.date).toLocaleDateString()}</div>
+                          <button
+                            onClick={() => {
+                              setEditingExpense(expense._id)
+                              setUpdatedAmount(expense.value)
+                              setUpdatedDescription(expense.description)
+                              setUpdatedDate(new Date(expense.date).toISOString().split('T')[0])
+                            }}
+                            className="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600"
+                          >
+                            Update
+                          </button>
+                          <button
+                            onClick={() => handleDeleteExpense(expense._id)}
+                            className="px-2 py-1 text-white bg-red-500 rounded hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -238,7 +342,7 @@ export default function Dashboard() {
                   <div className="p-10 bg-white rounded-lg shadow-md">Set Budget</div>
                   <div>-</div>
                   <div className="p-10 bg-white rounded-lg shadow-md">The amount of your expenses</div>
-                  <div className=''>=</div>
+                  <div className=''>-</div>
                   <div className="p-10 bg-white rounded-lg shadow-md">The remaining balance of your budget</div>
                 </div>
                 <div className="w-full max-w-md space-y-2">
@@ -252,14 +356,13 @@ export default function Dashboard() {
                     <span className="font-semibold">Remaining Budget:</span> {calculateRemainingBudget() !== null ? `$${calculateRemainingBudget()}` : 'N/A'}
                   </p>
 
-                  {/* Input and Button Section */}
                   <div className="flex flex-col items-center mt-2">
                     <input
                       type="number"
                       value={newBudget}
                       onChange={(e) => setNewBudget(Number(e.target.value))}
                       placeholder="Set new budget"
-                      className="w-full max-w-sm p-4 mb-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                      className="w-full max-w-sm p-4 mb-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow -400"
                     />
                     <button
                       onClick={handleSetBudget}
