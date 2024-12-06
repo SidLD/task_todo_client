@@ -1,6 +1,10 @@
 {
-    "rewrites": [
-      { "source": "/(.*)", "destination": "/" }
-    ]
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ],
+  "build": {
+    "env": {
+      "NODE_OPTIONS": "--experimental-specifier-resolution=node"
+    }
   }
-  
+}
