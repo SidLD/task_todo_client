@@ -1,3 +1,6 @@
+import tailwindcssAnimate from "tailwindcss-animate";
+
+
 /** @type {import('tailwindcss').Config} */
 export default {
 	darkMode: ["class"],
@@ -16,7 +19,81 @@ export default {
 		  "2xl": "1400px",
 		},
 	  },
+	  extend: {
+		colors: {
+		  border: "hsl(var(--border))",
+		  input: "hsl(var(--input))",
+		  ring: "hsl(var(--ring))",
+		  background: "hsl(var(--background))",
+		  foreground: "hsl(var(--foreground))",
+		  primary: {
+			DEFAULT: "#3698FA",
+			50: "#E9F4FE",
+			100: "#D5EAFE",
+			200: "#ADD5FD",
+			300: "#86C1FC",
+			400: "#5EACFB",
+			500: "#3698FA",
+			600: "#067CF2",
+			700: "#0560BB",
+			800: "#034484",
+			900: "#02284E",
+			950: "#011A32",
+			foreground: "hsl(var(--primary-foreground))",
+		  },
+		  dark: {
+			DEFAULT: "#1b1b1b",
+			20: "#1e1e1e",
+		  },
+		  background: {
+			DEFAULT: "#f9f9f9",
+		  },
+		  secondary: {
+			DEFAULT: "hsl(var(--secondary))",
+			foreground: "hsl(var(--secondary-foreground))",
+		  },
+		  destructive: {
+			DEFAULT: "hsl(var(--destructive))",
+			foreground: "hsl(var(--destructive-foreground))",
+		  },
+		  muted: {
+			DEFAULT: "hsl(var(--muted))",
+			foreground: "hsl(var(--muted-foreground))",
+		  },
+		  accent: {
+			DEFAULT: "hsl(var(--accent))",
+			foreground: "hsl(var(--accent-foreground))",
+		  },
+		  popover: {
+			DEFAULT: "hsl(var(--popover))",
+			foreground: "hsl(var(--popover-foreground))",
+		  },
+		  card: {
+			DEFAULT: "hsl(var(--card))",
+			foreground: "hsl(var(--card-foreground))",
+		  },
+		},
+		borderRadius: {
+		  lg: "var(--radius)",
+		  md: "calc(var(--radius) - 2px)",
+		  sm: "calc(var(--radius) - 4px)",
+		},
+		keyframes: {
+		  "accordion-down": {
+			from: { height: "0" },
+			to: { height: "var(--radix-accordion-content-height)" },
+		  },
+		  "accordion-up": {
+			from: { height: "var(--radix-accordion-content-height)" },
+			to: { height: "0" },
+		  },
+		},
+		animation: {
+		  "accordion-down": "accordion-down 0.2s ease-out",
+		  "accordion-up": "accordion-up 0.2s ease-out",
+		},
+	  },
 	},
-	plugins: [require("tailwindcss-animate")],
-  };
+	plugins: [tailwindcssAnimate],
+};
   
