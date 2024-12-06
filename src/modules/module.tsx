@@ -16,6 +16,5 @@ export const PrivateLayout = () => {
     if (!auth.isAuthenticated()) {
         return <Navigate to={"/"} />;
     }
-    return <>
-    <Outlet /></> 
+    return <><Outlet /></> 
 }
