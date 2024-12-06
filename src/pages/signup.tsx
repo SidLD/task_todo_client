@@ -29,12 +29,12 @@ export function SignUpModal() {
         })
       }else{    
           await register(formData)
-            .then((data:any) => {
+            .then((_data:any) => {
               toast({
                 title: "Sign Up Success ",
               })
             })
-            .catch((err:any) => {
+            .catch((_err:any) => {
               toast({
                 variant: 'destructive',
                 title: "Sign Up Failed ",
