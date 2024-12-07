@@ -1,79 +1,284 @@
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { useNavigate } from 'react-router-dom'
-import { LoginFormData } from '@/lib/interface'
-import { SignUpModal } from './signup'
-import { login } from '@/lib/api'
-import { auth } from '@/lib/services'
+'use client'
 
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { Brain, Eye, EyeOff } from 'lucide-react' // Import the Eye and EyeOff icons
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 
-export default function LoginPage() {
-  const router = useNavigate()
-  const [loginData, setLoginData] = useState<LoginFormData>({
-    username: '',
-    password: ''
-  })
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Toaster } from "@/components/ui/toaster"
 
+import { LoginFormData, RegisterFormData } from "@/lib/interface"
+import { useToast } from "@/hooks/use-toast"
+import { login, register } from "@/lib/api"
+import { auth } from "@/lib/services"
+import { useNavigate } from "react-router-dom"
+
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+})
+
+const registerSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
+  middleName: z.string().min(1, { message: "Middle name is required" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+})
+
+export default function Auth() {
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false) // State for toggling password visibility
+  const { toast } = useToast()
+  const navigation = useNavigate()
+  
   useEffect(() => {
-    if(auth.getToken()){
-      router('/user')
+    const user = auth.getRole()
+    if(user == 'USER'){
+      navigation('/user')
+    }else if(user == "ADMIN"){
+      navigation('/admin')
     }
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  })
+
+  const registerForm = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  })
+
+  const onLogin = async (data: LoginFormData) => {
+    setLoading(true)
     try {
-      await login(loginData)
-      .then((data:any) => {
-        if(data.data){
-          auth.storeToken(data.data.token)
-          router('/user')
+      login(data).then((res:any) => {
+        console.log(res)
+        if(res.data?.token){
+          auth.storeToken(res.data.token)
+          toast({
+            title: "Login Successful",
+            description: "Welcome back!, Navigating to Dashboard",
+          })
+          setTimeout(() => {
+            const user = auth.getRole()
+            if(user == 'USER'){
+              navigation('/user')
+            }else if(user == "ADMIN"){
+              navigation('/admin')
+            }
+          }, 1000)
         }
       })
       .catch((err:any) => {
-        console.log(err)
+        toast({
+          variant: 'destructive',
+          title: "Login Failed",
+          description: `${err.response.data.message}`,
+        })
       })
     } catch (error) {
-      
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const onRegister = async (data: RegisterFormData) => {
+    setLoading(true)
+    try {
+      register(data).then((data) => {
+        console.log(data)
+        toast({
+          title: "Register Successful",
+          description: "Welcome new User!",
+        })
+      })
+      .catch((err:any) => {
+        toast({
+          variant: 'destructive',
+          title: "Registration Failed",
+          description: `${err.response.data.message}`,
+        })
+      })
+    } catch (error) {
+      toast({
+        title: "Registration Failed",
+        description: "An error occurred. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#dfbe51] flex flex-col">
-      <header className="w-full bg-[#e2af42] py-5 text-center">
-        <h1 className="text-2xl font-bold text-black">DAILY FINANCES</h1>
-      </header>
-      
-      <main className="flex flex-col items-center justify-center flex-grow">
-        <form className="w-full max-w-md space-y-4">
-          <Input
-            type="text"
-            placeholder="Username"
-            value={loginData.username}
-            onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
-            className="h-12 rounded-lg bg-[#f0f0f0] text-black"
-            required
-          />
-          
-          <Input
-            type="password"
-            placeholder="Password"
-            value={loginData.password}
-            onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-            className="h-12 rounded-lg bg-[#f0f0f0] text-black"
-            required
-          />
-          
-          <div className="flex justify-center space-x-4">
-            <Button onClick={handleSubmit} type="submit" className="w-36 h-12 bg-[#8f6b07] hover:bg-[#dab641] text-white rounded-lg">
-              Login
-            </Button>
-            <SignUpModal />
-          </div>
-        </form>
-      </main>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="w-full max-w-md p-8">
+        <div className="flex items-center justify-center mb-8">
+          <Brain className="w-10 h-10 text-teal-500" />
+          <span className="ml-2 text-2xl font-bold text-gray-900">Smart Tracker</span>
+        </div>
+        <Tabs defaultValue="login" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="register">Register</TabsTrigger>
+          </TabsList>
+          <TabsContent value="login">
+            <Card>
+              <CardHeader>
+                <CardTitle>Welcome back</CardTitle>
+                <CardDescription>Enter your credentials to access your account</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="m@example.com" 
+                      {...loginForm.register("email")}
+                      className="border-teal-100 focus:ring-teal-500"
+                    />
+                    {loginForm.formState.errors.email && (
+                      <p className="text-sm text-red-500">{loginForm.formState.errors.email.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Input 
+                        id="password" 
+                        type={showPassword ? "text" : "password"} // Toggle password visibility
+                        {...loginForm.register("password")}
+                        className="border-teal-100 focus:ring-teal-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)} // Toggle state on click
+                        className="absolute text-teal-500 transform -translate-y-1/2 right-2 top-1/2"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {loginForm.formState.errors.password && (
+                      <p className="text-sm text-red-500">{loginForm.formState.errors.password.message}</p>
+                    )}
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-teal-500 hover:bg-teal-600"
+                    disabled={loading}
+                  >
+                    {loading ? "Logging in..." : "Login"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="register">
+            <Card>
+              <CardHeader>
+                <CardTitle>Create an account</CardTitle>
+                <CardDescription>Enter your details to get started</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      placeholder="m@example.com" 
+                      {...registerForm.register("email")}
+                      className="border-teal-100 focus:ring-teal-500"
+                    />
+                    {registerForm.formState.errors.email && (
+                      <p className="text-sm text-red-500">{registerForm.formState.errors.email.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input 
+                      id="firstName" 
+                      type="text" 
+                      {...registerForm.register("firstName")}
+                      className="border-teal-100 focus:ring-teal-500"
+                    />
+                    {registerForm.formState.errors.firstName && (
+                      <p className="text-sm text-red-500">{registerForm.formState.errors.firstName.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input 
+                      id="lastName" 
+                      type="text" 
+                      {...registerForm.register("lastName")}
+                      className="border-teal-100 focus:ring-teal-500"
+                    />
+                    {registerForm.formState.errors.lastName && (
+                      <p className="text-sm text-red-500">{registerForm.formState.errors.lastName.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="middleName">Middle Name</Label>
+                    <Input 
+                      id="middleName" 
+                      type="text" 
+                      {...registerForm.register("middleName")}
+                      className="border-teal-100 focus:ring-teal-500"
+                    />
+                    {registerForm.formState.errors.middleName && (
+                      <p className="text-sm text-red-500">{registerForm.formState.errors.middleName.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <div className="relative">
+                      <Input 
+                        id="password" 
+                        type={showPassword ? "text" : "password"} // Toggle password visibility
+                        {...registerForm.register("password")}
+                        className="border-teal-100 focus:ring-teal-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)} // Toggle state on click
+                        className="absolute text-teal-500 transform -translate-y-1/2 right-2 top-1/2"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {registerForm.formState.errors.password && (
+                      <p className="text-sm text-red-500">{registerForm.formState.errors.password.message}</p>
+                    )}
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-teal-500 hover:bg-teal-600"
+                    disabled={loading}
+                  >
+                    {loading ? "Creating account..." : "Create account"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+      <Toaster />
     </div>
   )
 }
-

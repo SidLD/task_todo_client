@@ -1,12 +1,14 @@
 import {createBrowserRouter, createRoutesFromElements, Navigate, Route} from "react-router-dom"
 import Dashboard from "@/pages/dashboard"
-import Home from "@/pages/login"
+import Auth from "@/pages/login"
+import ManagePage from "@/pages/adminDashboard"
 
 const routers = createBrowserRouter(
     createRoutesFromElements(
         <>
-            <Route index path="/" element={<Home />} />
+            <Route index path="/" element={<Auth />} />
             <Route path="/user" element={<Dashboard/>}/>
+            <Route path="/admin" element={<ManagePage/>}/>
             <Route  path="*" element={<Navigate to="/" replace />} />
         </>
     )
