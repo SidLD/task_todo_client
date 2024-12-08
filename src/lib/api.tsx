@@ -216,10 +216,10 @@ export const createTodo = (data: any) => {
   });
 };
 
-export const getTodos = () => {
+export const getTodos = (id:string) => {
   return new Promise((resolve, reject) => {
     axios
-      .get(`${import.meta.env.VITE_API_URL}/todos`, dataHeader())
+      .get(`${import.meta.env.VITE_API_URL}/tasks-todo/${id}`, dataHeader())
       .then((res: any) => {
         resolve(res);
       })

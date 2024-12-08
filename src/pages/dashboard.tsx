@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Brain, LogOut, MoreVertical, Plus, Trash2, Check, Square, CheckSquare, Pencil, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import background from "@/assets/background.jpg"
 import {
   Card,
   CardContent,
@@ -24,6 +25,8 @@ import { getUsers, getSubjects, deleteTask, createTask, getTasks, updateTask } f
 import { auth } from '@/lib/services'
 import { useNavigate } from 'react-router-dom'
 import { ISubject, IUser } from '@/lib/interface'
+import { Tooltip, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
+import { TooltipTrigger } from '@radix-ui/react-tooltip'
 
 interface Task {
   _id: string;
@@ -32,7 +35,11 @@ interface Task {
     _id: string;
     name: string;
   };
-  todo: string[];
+  todo: [
+    {
+      name: string
+    }
+  ];
   teacher: {
     _id: string;
     firstName: string;
@@ -68,6 +75,18 @@ export default function DashboardPage() {
     }
     fetchData()
   }, [])
+
+  const calculateProgress = () => {
+    let todos:any = [];
+    tasks.forEach(t => {
+      t.todo.forEach(d => {
+        todos.push(d)
+      })
+    })
+    const completedTodos = todos.filter((t:any) => t.status === "COMPLETED").length;
+    const progressPercentage = (completedTodos / todos.length) * 100;
+    return progressPercentage; // Returns as a string with 2 decimal places
+  };
 
   const fetchData = async () => {
     try {
@@ -251,16 +270,18 @@ export default function DashboardPage() {
   )
 
   return (
+    <TooltipProvider>
+      
     <div className="relative min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div 
-        className="fixed inset-0 pointer-events-none opacity-10"
-        style={{
-          backgroundImage: 'url("/smart-tracker-logo.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundSize: '50%'
-        }}
-      />
+     <div 
+          className="fixed inset-0 pointer-events-none opacity-10"
+          style={{
+            backgroundImage: `url(${background})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundSize: '50%'
+          }}
+        />
 
       <header className="relative z-10 flex items-center justify-between p-4 shadow-sm bg-white/80 backdrop-blur-sm">
         <div className="flex items-center">
@@ -349,7 +370,16 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">{task.subject.name}</h3>
-                      <p className="text-sm text-gray-700">{task.todo.length} Task</p>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <a href={`tasks/${task._id}`}>
+                            {task.todo.length} Task
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-xs text-gray-500">Check out tasks</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm text-gray-700">{`${task.teacher.firstName} ${task.teacher.lastName}`}</p>
@@ -413,7 +443,7 @@ export default function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-xl text-gray-600">Today you have {tasks.length} tasks</p>
+                <p className="text-xl text-gray-600">Today you have {tasks.length} Subject</p>
                 <p className="text-2xl font-bold text-[#5CD7C9]">GOODLUCK!</p>
                 <div className="relative w-48 h-48 mx-auto">
                   <svg className="w-full h-full" viewBox="0 0 100 100">
@@ -432,12 +462,12 @@ export default function DashboardPage() {
                       fill="none"
                       stroke="#5CD7C9"
                       strokeWidth="10"
-                      strokeDasharray={`${80 * 2.83}, 283`}
+                      strokeDasharray={`${calculateProgress() * 2.83}, 283`}
                       strokeLinecap="round"
                       transform="rotate(-90 50 50)"
                     />
                     <text x="50" y="50" textAnchor="middle" dy="0.3em" className="text-4xl font-bold fill-[#5CD7C9]">
-                      {80}%
+                      {calculateProgress().toFixed(0)}%
                     </text>
                   </svg>
                 </div>
@@ -482,6 +512,7 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+    </TooltipProvider>
   )
 }
 
