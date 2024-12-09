@@ -122,27 +122,11 @@ export default function TodoPage() {
             <h1 className="text-2xl font-bold text-black">Smart Tracker</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="text-gray-600" onClick={() => router('/')}>
+            <Button variant="ghost" size="icon" className="text-gray-600" onClick={() => {
+              router('/')
+            }}>
               <ArrowLeft className="w-6 h-6" />
             </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-gray-600">
-                  <MoreVertical className="w-6 h-6" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#5CD7C9] border-none">
-                <DropdownMenuItem 
-                  className="text-gray-800 focus:bg-[#4AC7B9] focus:text-gray-800"
-                  onClick={() => setIsSelectionMode(true)}
-                >
-                  Select items
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-gray-800 focus:bg-[#4AC7B9] focus:text-gray-800">
-                  Sort
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <Button variant="ghost" size="icon" className="text-gray-600" onClick={() => {
               auth.clear()
               setTimeout(() => {
@@ -171,7 +155,7 @@ export default function TodoPage() {
                 value={newTaskName}
                 onChange={(e) => setNewTaskName(e.target.value)}
                 placeholder="New Task"
-                className="w-full mb-4 input"
+                className="w-full mb-4 text-black input"
               />
               <Button onClick={handleCreateTask} className="w-full bg-[#5CD7C9] text-white py-2 rounded-md">
                 Add Task
@@ -245,13 +229,13 @@ export default function TodoPage() {
                 ))}
               </div>
               <div className="lg:pl-8">
-            <Card className="border-[#5CD7C9] border-2 rounded-xl">
+            <Card className="border-[#5CD7C9] border-2 rounded-xl text-center w-full">
               <CardHeader>
-                <CardTitle className="text-3xl font-bold text-gray-800">
-                  Hey {auth.getUserInfo().firstName},
+                <CardTitle className="text-3xl font-bold text-gray-800 ">
+                  Hey <span className='uppercase'>{auth.getUserInfo().firstname}</span>,
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 ">
                 <p className="text-xl text-gray-600">Today you have {todo.length} tasks</p>
                 <p className="text-2xl font-bold text-[#5CD7C9]">GOODLUCK!</p>
                 <div className="relative w-48 h-48 mx-auto">
