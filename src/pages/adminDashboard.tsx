@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Pencil, Trash2, Settings } from 'lucide-react'
+import { Brain, LogOut, Plus, Check, Square, CheckSquare, Pencil, X } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,6 +19,7 @@ import { getUsers, register, updateUser, deleteUser, getSubjects, createSubject,
 import { RegisterFormData } from '@/lib/interface'
 import { auth } from '@/lib/services'
 import { useNavigate } from 'react-router-dom'
+import { Card, CardContent } from "@/components/ui/card"
 
 interface Subject {
   _id?: string;
@@ -36,12 +37,14 @@ interface User {
   role: 'ADMIN' | 'USER' | 'TEACHER';
 }
 
-export default function ManagePage() {
+export default function ManagementDashboard() {
   const [professors, setProfessors] = useState<User[]>([])
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [editingItem, setEditingItem] = useState<User | Subject | null>(null)
   const [activeTab, setActiveTab] = useState('professors')
+  const [selectedItems, setSelectedItems] = useState<string[]>([])
+  const [isSelectionMode, setIsSelectionMode] = useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
 
@@ -176,23 +179,49 @@ export default function ManagePage() {
     }
   }
 
+  const toggleItemSelection = (id: string) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(itemId => itemId !== id)
+        : [...prev, id]
+    )
+  }
+
+  const handleSelectAll = () => {
+    const items = activeTab === 'professors' ? professors : subjects
+    if (selectedItems.length === items.length) {
+      setSelectedItems([])
+    } else {
+      setSelectedItems(items.map(item => item._id!))
+    }
+  }
+
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-white">
-      <header className="flex items-center justify-between p-4 bg-blue-600">
+      <header className="flex items-center justify-between p-4 bg-[#5CD7C9]">
         <div className="flex items-center">
-          <img src="/placeholder.svg?height=40&width=40" alt="Logo" className="w-10 h-10 mr-2" />
+          <Brain className="w-10 h-10 mr-2 text-black" />
           <h1 className="text-2xl font-bold text-black">Smart Tracker</h1>
         </div>
-        <Button variant="ghost" size="icon" className="text-black">
-          <Settings className="w-6 h-6" />
-        </Button>
+        <div className="flex items-center gap-2">
+          
+          <Button variant="ghost" size="icon" className="text-black" onClick={() => {
+            auth.clear()
+            setTimeout(() => {
+              navigate('/')
+            }, 1000)
+          }}>
+            <LogOut className="w-6 h-6" />
+          </Button>
+        </div>
       </header>
       <main className="container px-4 py-10 mx-auto">
         <h2 className="mb-8 text-3xl font-bold text-blue-800">Management Dashboard</h2>
         <Tabs defaultValue="professors" className="w-full" onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="professors" className="text-black bg-blue-200 data-[state=active]:bg-blue-400">Professors</TabsTrigger>
-            <TabsTrigger value="subjects" className="text-black bg-blue-200 data-[state=active]:bg-blue-400">Subjects</TabsTrigger>
+            <TabsTrigger value="professors" className="text-black bg-[#5CD7C9] data-[state=active]:bg-[#4AC7B9]">Professors</TabsTrigger>
+            <TabsTrigger value="subjects" className="text-black bg-[#5CD7C9] data-[state=active]:bg-[#4AC7B9]">Subjects</TabsTrigger>
           </TabsList>
           <TabsContent value="professors">
             <ProfessorManagement
@@ -204,6 +233,9 @@ export default function ManagePage() {
               handleCreate={handleCreate}
               handleUpdate={handleUpdate}
               handleDelete={handleDelete}
+              isSelectionMode={isSelectionMode}
+              selectedItems={selectedItems}
+              toggleItemSelection={toggleItemSelection}
             />
           </TabsContent>
           <TabsContent value="subjects">
@@ -216,9 +248,48 @@ export default function ManagePage() {
               handleCreate={handleCreate}
               handleUpdate={handleUpdate}
               handleDelete={handleDelete}
+              isSelectionMode={isSelectionMode}
+              selectedItems={selectedItems}
+              toggleItemSelection={toggleItemSelection}
             />
           </TabsContent>
         </Tabs>
+        {selectedItems.length > 0 && (
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center gap-2 text-black">
+              <Check className="w-5 h-5 text-[#5CD7C9]" />
+              {selectedItems.length} Item{selectedItems.length !== 1 ? 's' : ''} Selected
+            </div>
+            <div className="flex gap-4">
+              <Button
+                variant="ghost"
+                className="text-black"
+                onClick={handleSelectAll}
+              >
+                Select all
+              </Button>
+              {/* <Button
+                variant="ghost"
+                className="text-red-600"
+                onClick={handleDeleteSelected}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button> */}
+              <Button
+                variant="ghost"
+                className="text-black"
+                onClick={() => {
+                  setIsSelectionMode(false)
+                  setSelectedItems([])
+                }}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
       </main>
       <Toaster />
     </div>
@@ -233,7 +304,9 @@ function ProfessorManagement({
   setEditingItem,
   handleCreate, 
   handleUpdate, 
-  handleDelete 
+  isSelectionMode,
+  selectedItems,
+  toggleItemSelection
 }: {
   professors: User[],
   isEditing: string | null,
@@ -242,13 +315,16 @@ function ProfessorManagement({
   setEditingItem: (item: User | null) => void,
   handleCreate: (e: React.FormEvent<HTMLFormElement>) => Promise<void>,
   handleUpdate: (e: React.FormEvent<HTMLFormElement>) => Promise<void>,
-  handleDelete: (id: string) => Promise<void>
+  handleDelete: (id: string) => Promise<void>,
+  isSelectionMode: boolean,
+  selectedItems: string[],
+  toggleItemSelection: (id: string) => void
 }) {
   return (
     <div className="space-y-4 text-black">
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="mb-4 text-white bg-blue-600 hover:bg-blue-700">
+          <Button className="mb-4 text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
             <Plus className="w-4 h-4 mr-2" /> Add Professor
           </Button>
         </DialogTrigger>
@@ -269,7 +345,7 @@ function ProfessorManagement({
             </div>
             <div className="space-y-2">
               <Label htmlFor="middleName" className="text-blue-800">Middle Name</Label>
-              <Input id="middleName" name="middleName" className="text-black border-blue-300 focus:border-blue-500" />
+              <Input id="middleName" name="middleName" required className="text-black border-blue-300 focus:border-blue-500" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-blue-800">Email</Label>
@@ -284,7 +360,7 @@ function ProfessorManagement({
               <Input id="password" value="password" name="password" type="hidden" required className="text-black border-blue-300 focus:border-blue-500" />
             </div>
             <Input id="role" name="role" type="hidden" value="TEACHER"  />
-            <Button type="submit" className="w-full text-white bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="w-full text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
               Add Professor
             </Button>
           </form>
@@ -320,7 +396,7 @@ function ProfessorManagement({
               <Input id="title" name="title" defaultValue={editingItem?.title} className="text-black border-blue-300 focus:border-blue-500" />
             </div>
             <Input id="role" name="role" type="hidden" value="TEACHER"  />
-            <Button type="submit" className="w-full text-white bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="w-full text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
               Update Professor
             </Button>
           </form>
@@ -329,38 +405,59 @@ function ProfessorManagement({
 
       <div className="grid gap-4">
         {professors.map((professor) => (
-          <div
+          <Card
             key={professor._id}
-            className="flex items-center justify-between p-4 bg-white border border-blue-200 rounded-lg shadow-sm"
+            className="bg-[#5CD7C9] border-none rounded-xl overflow-hidden hover:bg-[#4AC7B9] transition-colors"
           >
-            <div>
-              <h3 className="font-medium text-blue-800">
-                {professor.title} {professor.firstName} {professor.lastName}
-              </h3>
-              <p className="text-sm text-blue-600">{professor.email}</p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  setIsEditing(professor._id || null)
-                  setEditingItem(professor)
-                }}
-                className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => professor._id && handleDelete(professor._id)}
-                className="text-red-600 hover:text-red-800 hover:bg-red-100"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium text-black">
+                    {professor.title} {professor.firstName} {professor.lastName}
+                  </h3>
+                  <p className="text-sm text-black">{professor.email}</p>
+                </div>
+                <div className="flex gap-2">
+                  {isSelectionMode ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-8 h-8"
+                      onClick={() => toggleItemSelection(professor._id!)}
+                    >
+                      {selectedItems.includes(professor._id!) ? (
+                        <CheckSquare className="w-5 h-5 text-black" />
+                      ) : (
+                        <Square className="w-5 h-5 text-black" />
+                      )}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setIsEditing(professor._id || null)
+                          setEditingItem(professor)
+                        }}
+                        className="text-black hover:text-blue-800 hover:bg-[#4AC7B9]"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      {/* <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => professor._id && handleDelete(professor._id)}
+                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button> */}
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>
@@ -375,7 +472,9 @@ function SubjectManagement({
   setEditingItem,
   handleCreate, 
   handleUpdate, 
-  handleDelete 
+  isSelectionMode,
+  selectedItems,
+  toggleItemSelection
 }: {
   subjects: Subject[],
   isEditing: string | null,
@@ -384,13 +483,16 @@ function SubjectManagement({
   setEditingItem: (item: Subject | null) => void,
   handleCreate: (e: React.FormEvent<HTMLFormElement>) => Promise<void>,
   handleUpdate: (e: React.FormEvent<HTMLFormElement>) => Promise<void>,
-  handleDelete: (id: string) => Promise<void>
+  handleDelete: (id: string) => Promise<void>,
+  isSelectionMode: boolean,
+  selectedItems: string[],
+  toggleItemSelection: (id: string) => void
 }) {
   return (
     <div className="space-y-4">
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="mb-4 text-white bg-blue-600 hover:bg-blue-700">
+          <Button className="mb-4 text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
             <Plus className="w-4 h-4 mr-2" /> Add Subject
           </Button>
         </DialogTrigger>
@@ -401,9 +503,9 @@ function SubjectManagement({
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-blue-800">Subject Name</Label>
-              <Input id="name" name="name" required className="border-blue-300 focus:border-blue-500" />
+              <Input id="name" name="name" required className="text-black border-blue-300 focus:border-blue-500" />
             </div>
-            <Button type="submit" className="w-full text-white bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="w-full text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
               Add Subject
             </Button>
           </form>
@@ -420,7 +522,7 @@ function SubjectManagement({
               <Label htmlFor="name" className="text-blue-800">Subject Name</Label>
               <Input id="name" name="name" defaultValue={editingItem?.name} required className="border-blue-300 focus:border-blue-500" />
             </div>
-            <Button type="submit" className="w-full text-white bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="w-full text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
               Update Subject
             </Button>
           </form>
@@ -429,33 +531,54 @@ function SubjectManagement({
 
       <div className="grid gap-4">
         {subjects.map((subject) => (
-          <div
+          <Card
             key={subject._id}
-            className="flex items-center justify-between p-4 bg-white border border-blue-200 rounded-lg shadow-sm"
+            className="bg-[#5CD7C9] border-none rounded-xl overflow-hidden hover:bg-[#4AC7B9] transition-colors"
           >
-            <h3 className="font-medium text-blue-800">{subject.name}</h3>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => {
-                  setIsEditing(subject._id || null)
-                  setEditingItem(subject)
-                }}
-                className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => subject._id && handleDelete(subject._id)}
-                className="text-red-600 hover:text-red-800 hover:bg-red-100"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-black">{subject.name}</h3>
+                <div className="flex gap-2">
+                  {isSelectionMode ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-8 h-8"
+                      onClick={() => toggleItemSelection(subject._id!)}
+                    >
+                      {selectedItems.includes(subject._id!) ? (
+                        <CheckSquare className="w-5 h-5 text-black" />
+                      ) : (
+                        <Square className="w-5 h-5 text-black" />
+                      )}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setIsEditing(subject._id || null)
+                          setEditingItem(subject)
+                        }}
+                        className="text-black hover:text-blue-800 hover:bg-[#4AC7B9]"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      {/* <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => subject._id && handleDelete(subject._id)}
+                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button> */}
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

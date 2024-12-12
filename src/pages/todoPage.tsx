@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTodos, createTodo, updateTodo, deleteTodo } from '@/lib/api';
-import { ArrowLeft, Brain, LogOut, MoreVertical, Trash2, Check, Plus } from 'lucide-react';
+import { ArrowLeft, Brain, LogOut, Trash2, Check, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import background from "@/assets/background.jpg"
 import {
@@ -9,12 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { auth } from '@/lib/services';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -29,8 +23,6 @@ export default function TodoPage() {
   const router = useNavigate();
   const { id } = useParams();
   const [todo, setTodo] = useState<any[]>([]);
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [newTaskName, setNewTaskName] = useState<string>('');
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
 
@@ -42,35 +34,9 @@ export default function TodoPage() {
     }
   }, [id]);
 
-  const progress = Math.round((todo.filter(task => task.status === "COMPLETED").length / todo.length) * 100);
 
-  const toggleTaskSelection = (id: string) => {
-    setSelectedTasks(prev => 
-      prev.includes(id) 
-        ? prev.filter(taskId => taskId !== id)
-        : [...prev, id]
-    );
-  };
 
-  const handleSelectAll = () => {
-    if (selectedTasks.length === todo.length) {
-      setSelectedTasks([]);
-    } else {
-      setSelectedTasks(todo.map((t: any) => t._id));
-    }
-  };
 
-  const handleDeleteSelected = async () => {
-    console.log('Deleting selected tasks:', selectedTasks);
-    await Promise.all(selectedTasks.map(async (taskId) => {
-      await deleteTodo(taskId);
-    }));
-    setSelectedTasks([]);
-    setIsSelectionMode(false);
-    getTodo(id as string).then((data) => {
-      setTodo(data);
-    });
-  };
 
   const handleCreateTask = async () => {
     if (newTaskName.trim() === '') return;
