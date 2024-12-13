@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 
 interface Todo {
   name: string
-  status: string
+  status: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETED',
   startDate: Date,
   endDate: Date
 }

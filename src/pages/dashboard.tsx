@@ -28,6 +28,13 @@ import { ISubject, IUser } from '@/lib/interface'
 import { Tooltip, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { TooltipTrigger } from '@radix-ui/react-tooltip'
 
+
+interface Todo {
+  name: string
+  status: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETED',
+  startDate: Date,
+  endDate: Date
+}
 interface Task {
   _id: string;
   user: string;
@@ -36,10 +43,7 @@ interface Task {
     name: string;
   };
   todo: [
-    {
-      name: string
-      status: string
-    }
+    Todo
   ];
   teacher: {
     _id: string;
@@ -199,18 +203,23 @@ export default function DashboardPage() {
     }
   }
 
-  const calculateDate = (_startDate: string, endDate: string) => {
+  const calculateDate = (todos: Todo[]) => {
     try {
-      const end = new Date(endDate);
-      const today = new Date();
-      const daysLeft = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  
-      if(daysLeft > 3){
-        return (<></>)
-      }else {
-        return (<span className='float-right'>
-          <ClockAlert className='text-red-500'/>
-        </span>);
+      const nearEndDateTasks = todos.filter(todo => {
+        const end = new Date(todo.endDate);
+        const today = new Date();
+        const daysLeft = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        return daysLeft <= 3 && todo.status !== 'COMPLETED';
+      });
+
+      if (nearEndDateTasks.length > 0) {
+        return (
+          <span className='float-right'>
+            <ClockAlert className='text-red-500'/>
+          </span>
+        );
+      } else {
+        return <></>;
       }
     } catch (error) {
       return <span className="text-xs text-gray-500">No date set</span>;
@@ -429,7 +438,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className='flex flex-col gap-2'>
-                          <span>{calculateDate(task?.startDate || '', task?.endDate || '')}</span>
+                          <span>{calculateDate(task.todo)}</span>
                           <p className="text-black text-md">{`${task.teacher.firstName} ${task.teacher.lastName}`}</p>
                         </div>
                         {isSelectionMode ? (
