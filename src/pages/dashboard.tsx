@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Brain, LogOut, MoreVertical, Plus, Trash2, Check, Square, CheckSquare, X } from 'lucide-react'
+import { Brain, LogOut, MoreVertical, Plus, Trash2, Check, Square, CheckSquare, X, ClockAlert } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import background from "@/assets/background.jpg"
 import {
@@ -71,7 +71,6 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const userSession = auth.getRole()
-    console.log("teas",userSession)
     if(userSession == 'USER'){
       navigate('/user')
     }else if(userSession == "ADMIN"){
@@ -206,24 +205,13 @@ export default function DashboardPage() {
       const today = new Date();
       const daysLeft = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   
-      let color;
-      let bgColor;
-      if (daysLeft > 3) {
-        color = 'text-green-700';
-        bgColor = 'bg-green-100';
-      } else if (daysLeft > 0) {
-        color = 'text-orange-700';
-        bgColor = 'bg-orange-100';
-      } else {
-        color = 'text-red-700';
-        bgColor = 'bg-red-100';
+      if(daysLeft > 3){
+        return (<></>)
+      }else {
+        return (<span className='float-right'>
+          <ClockAlert className='text-red-500'/>
+        </span>);
       }
-  
-      return (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${color} ${bgColor}`}>
-          {daysLeft > 0 ? `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left` : 'Deadline passed'}
-        </span>
-      );
     } catch (error) {
       return <span className="text-xs text-gray-500">No date set</span>;
     }
