@@ -14,43 +14,92 @@ import { auth } from '@/lib/services';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 
+interface Todo {
+  name: string
+  status: string
+  startDate: Date,
+  endDate: Date
+}
+interface Task {
+  _id: string;
+  user: string;
+  subject: {
+    _id: string;
+    name: string;
+  };
+  todo: [Todo];
+  teacher: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
+    title?: string;
+  };
+  startDate?: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 async function getTodo(id: string) {
   const res = await getTodos(id) as unknown as any;
   return res.data;
 }
 
+function calculateRemainingDays(endDate: Date): number {
+  const today = new Date();
+  const end = new Date(endDate);
+  const diffTime = end.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays > 0 ? diffDays : 0;
+}
+
 export default function TodoPage() {
   const router = useNavigate();
   const { id } = useParams();
-  const [todo, setTodo] = useState<any[]>([]);
-  const [newTaskName, setNewTaskName] = useState<string>('');
+  const [todo, setTodo] = useState<Todo[]>([]);
+  const [currentTask, setCurrentTask] = useState<Task>();
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [newTodo, setNewTodo] = useState<Partial<Todo>>({
+    name: '',
+    startDate: new Date(),
+    endDate: new Date()
+  });
+  const [dateError, setDateError] = useState<string>('');
 
   useEffect(() => {
     if (id) {
       getTodo(id as string).then((data) => {
-        setTodo(data);
+        setCurrentTask(data)
+        setTodo(data.todo);
       });
     }
   }, [id]);
 
-
-
-
-
   const handleCreateTask = async () => {
-    if (newTaskName.trim() === '') return;
+    if (!newTodo.name || !newTodo.startDate || !newTodo.endDate) return;
+    
+    const taskStartDate = new Date(currentTask?.startDate || Date.now());
+    const taskEndDate = new Date(currentTask?.endDate || Date.now());
+    
+    if (newTodo.startDate < taskStartDate || newTodo.endDate > taskEndDate) {
+      setDateError('Selected dates must be within the task\'s date range.');
+      return;
+    }
     
     const taskData = {
-      name: newTaskName,
-      status: 'TO_DO', // Default status for new tasks
-      taskId: id // Assuming the todo list is tied to a specific task (e.g., a project or subject)
+      ...newTodo,
+      status: 'TO_DO',
+      taskId: id
     };
 
     await createTodo(taskData);
-    setNewTaskName(''); // Clear input field after creation
+    setNewTodo({ name: '', startDate: new Date(), endDate: new Date() });
+    setIsAddTaskOpen(false);
+    setDateError('');
     getTodo(id as string).then((data) => {
-      setTodo(data);
+      setCurrentTask(data)
+      setTodo(data.todo);
     });
   };
 
@@ -58,14 +107,16 @@ export default function TodoPage() {
     const newStatus = currentStatus === "TO_DO" ? "COMPLETED" : "TO_DO";
     await updateTodo(taskId, { status: newStatus });
     getTodo(id as string).then((data) => {
-      setTodo(data);
+      setCurrentTask(data)
+      setTodo(data.todo);
     });
   };
 
   const handleDeleteTask = async (taskId: string) => {
     await deleteTodo(taskId);
     getTodo(id as string).then((data) => {
-      setTodo(data);
+      setCurrentTask(data)
+      setTodo(data.todo);
     });
   };
 
@@ -115,16 +166,43 @@ export default function TodoPage() {
               </Button>
             </DialogTrigger>
             <DialogContent className="p-6 bg-white rounded-lg shadow-lg w-96">
-              <h2 className="mb-4 text-2xl font-semibold text-black">Create a New Task</h2>
+              <h2 className="mb-4 text-2xl font-semibold text-black">Create a New Todo</h2>
               <input
                 type="text"
-                value={newTaskName}
-                onChange={(e) => setNewTaskName(e.target.value)}
-                placeholder="New Task"
+                value={newTodo.name}
+                onChange={(e) => setNewTodo({...newTodo, name: e.target.value})}
+                placeholder="New Todo"
                 className="w-full mb-4 text-black input"
               />
+              <div className="mb-4">
+                <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
+                <input
+                  type="date"
+                  id="startDate"
+                  value={newTodo.startDate?.toISOString().split('T')[0]}
+                  onChange={(e) => {
+                    setNewTodo({...newTodo, startDate: new Date(e.target.value)});
+                    setDateError('');
+                  }}
+                  className="w-full mt-1 text-black input"
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  value={newTodo.endDate?.toISOString().split('T')[0]}
+                  onChange={(e) => {
+                    setNewTodo({...newTodo, endDate: new Date(e.target.value)});
+                    setDateError('');
+                  }}
+                  className="w-full mt-1 text-black input"
+                />
+              </div>
+              {dateError && <p className="mb-4 text-sm text-red-500">{dateError}</p>}
               <Button onClick={handleCreateTask} className="w-full bg-[#5CD7C9] text-white py-2 rounded-md">
-                Add Task
+                Add Todo
               </Button>
             </DialogContent>
           </Dialog>
@@ -170,13 +248,21 @@ export default function TodoPage() {
                               <p>Mark as {task.status === "COMPLETED" ? 'incomplete' : 'complete'}</p>
                             </TooltipContent>
                           </Tooltip>
-                          <span
-                            className={`text-lg ${task.status === "COMPLETED" ? 'line-through text-gray-400' : 'text-black'}`}
-                          >
-                            {task.name}
-                          </span>
+                          <div className="flex flex-col">
+                            <span
+                              className={`text-lg ${task.status === "COMPLETED" ? 'line-through text-gray-400' : 'text-black'}`}
+                            >
+                              {task.name}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
+                            </span>
+                            <span className="text-xs text-blue-500">
+                              {calculateRemainingDays(task.endDate)} days remaining
+                            </span>
+                          </div>
                         </div>
-  
+
                         <div className="flex items-center gap-2">
                           {task.status === "COMPLETED" && (
                             <Button
@@ -239,5 +325,5 @@ export default function TodoPage() {
       </div>
     </TooltipProvider>
   );
-  
 }
+

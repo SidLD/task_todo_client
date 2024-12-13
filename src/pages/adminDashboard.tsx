@@ -520,7 +520,7 @@ function SubjectManagement({
           <form onSubmit={handleUpdate} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-blue-800">Subject Name</Label>
-              <Input id="name" name="name" defaultValue={editingItem?.name} required className="border-blue-300 focus:border-blue-500" />
+              <Input id="name" name="name" defaultValue={editingItem?.name} required className="text-black border-blue-300 focus:border-blue-500" />
             </div>
             <Button type="submit" className="w-full text-black bg-[#5CD7C9] hover:bg-[#4AC7B9]">
               Update Subject

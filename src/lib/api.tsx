@@ -1,6 +1,7 @@
 import axios from "axios";
 import { dataHeader } from "./helper";
 import { LoginFormData, RegisterFormData } from "./interface";
+import { auth } from "./services";
 
 console.log(import.meta.env.VITE_API_URL);
 
@@ -155,7 +156,11 @@ export const getTasks = () => {
     axios
       .get(`${import.meta.env.VITE_API_URL}/tasks`, dataHeader())
       .then((res: any) => {
-        resolve(res);
+        if(res.data.isLoggingIn == false){
+          auth.clear()
+        }else {
+          resolve(res);
+        }
       })
       .catch((err: any) => {
         reject(err);
