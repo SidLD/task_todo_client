@@ -18,8 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { getUsers, getSubjects, deleteTask, createTask, getTasks, updateTask } from '@/lib/api'
 import { auth } from '@/lib/services'
@@ -52,8 +50,6 @@ interface Task {
     middleName?: string;
     title?: string;
   };
-  startDate?: string;
-  endDate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -159,13 +155,6 @@ export default function DashboardPage() {
   const openTaskModal = (mode: 'add' | 'edit' | 'delete', task?: Task) => {
     setTaskModalMode(mode)
     setCurrentTask(task || null)
-    if (task) {
-      setStartDate(task.startDate ? new Date(task.startDate) : undefined)
-      setEndDate(task.endDate ? new Date(task.endDate) : undefined)
-    } else {
-      setStartDate(undefined)
-      setEndDate(undefined)
-    }
     setIsTaskModalOpen(true)
   }
 
@@ -230,51 +219,6 @@ export default function DashboardPage() {
     <form onSubmit={handleTaskAction} className="space-y-4">
       <div className="space-y-2">
 
-      <div className="space-y-2">
-        <Label htmlFor="startDate" className="text-black">Start Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={`w-full justify-start text-left font-normal border-none bg-gray-100/80 ${!startDate && "text-muted-foreground"}  text-black`}
-            >
-              {startDate ? format(startDate, "PPP") : "Pick a start date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 text-black" align="start">
-            <Calendar
-              className='text-black'
-              mode="single"
-              selected={startDate}
-              onSelect={setStartDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="endDate" className="text-black">End Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={`w-full justify-start text-left font-normal border-none  ${!endDate && "text-muted-foreground"} text-black`}
-            >
-              {endDate ? format(endDate, "PPP") : "Pick an end date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 text-black" align="start">
-            <Calendar
-              mode="single"
-              className='text-black'
-              selected={endDate}
-              onSelect={setEndDate}
-              initialFocus
-              disabled={(date) => startDate ? date < startDate : false}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
         <Label htmlFor="subject" className="text-black">Subject</Label>
         <Select name="subject" required defaultValue={currentTask?.subject._id}>
           <SelectTrigger className="text-black border-none bg-gray-100/80">

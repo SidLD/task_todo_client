@@ -35,8 +35,6 @@ interface Task {
     middleName?: string;
     title?: string;
   };
-  startDate?: string;
-  endDate?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -58,7 +56,7 @@ export default function TodoPage() {
   const router = useNavigate();
   const { id } = useParams();
   const [todo, setTodo] = useState<Todo[]>([]);
-  const [currentTask, setCurrentTask] = useState<Task>();
+  const [_currentTask, setCurrentTask] = useState<Task>();
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [newTodo, setNewTodo] = useState<Partial<Todo>>({
     name: '',
@@ -78,14 +76,6 @@ export default function TodoPage() {
 
   const handleCreateTask = async () => {
     if (!newTodo.name || !newTodo.startDate || !newTodo.endDate) return;
-    
-    const taskStartDate = new Date(currentTask?.startDate || Date.now());
-    const taskEndDate = new Date(currentTask?.endDate || Date.now());
-    
-    if (newTodo.startDate < taskStartDate || newTodo.endDate > taskEndDate) {
-      setDateError('Selected dates must be within the task\'s date range.');
-      return;
-    }
     
     const taskData = {
       ...newTodo,
