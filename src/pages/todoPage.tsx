@@ -248,7 +248,7 @@ export default function TodoPage() {
                             <span className="text-xs text-gray-500">
                               {new Date(task.startDate).toLocaleDateString()} - {new Date(task.endDate).toLocaleDateString()}
                             </span>
-                            <span className={`text-xs  ${calculateRemainingDays(task.endDate) < 3 ? 'text-red-500' : 'text-blue-500'}`}>
+                            <span className={`text-xs  ${calculateRemainingDays(task.endDate) < 4 ? 'text-red-500' : 'text-blue-500'}`}>
                               {calculateRemainingDays(task.endDate)} days remaining
                             </span>
                           </div>
